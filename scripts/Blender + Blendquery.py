@@ -97,6 +97,11 @@ class lcd():
         solid_hole = bd.extrude(slcd, amount=20) 
         return solid_hole
     
+    def solid_screws(self, box):
+        solid = bd.Pos(-box.board.d.X/2+11, -box.board.d.Y/2+5, box.height - box.dim_top.Z - 1.5/2 + 1) * bd.Cylinder(radius=2.9, height=1.5)
+        solid += bd.Pos(-box.board.d.X/2+38, -box.board.d.Y/2+5, box.height - box.dim_top.Z - 1.5/2 + 1) * bd.Cylinder(radius=2.9, height=1.5)
+        return solid
+    
 class encoder():
     # class properties
     d = bd.Vector(13.8, 11.9, 0)
@@ -138,12 +143,13 @@ class mkdsn():
     # class properties  
     d = bd.Vector(5, 10, 1000)
     dxy = bd.Vector(10, 10, 5.2)
+    evd = bd.Vector(9.5, 11, 12.5)
 
     def __init__(self, board, clearance_xy):
         # instance properties
-        self.p1 = bd.Vector(board.d.X/2 - 3.55, board.d.Y/2 - self.d.Y/2 - 8.5)
-        self.p2 = bd.Vector(board.d.X/2 - 3.55, (board.d.Y+clearance_xy)/2 - self.d.Y/2 - 8.5 - self.d.Y - 6.7)
-        self.p3 = bd.Vector( -(board.d.X+clearance_xy)/2 + self.d.X/2, (board.d.Y+clearance_xy)/2 - self.d.Y/2 - 10.2)
+        self.p1 = bd.Vector(board.d.X/2 - 4.55, board.d.Y/2 - self.d.Y/2 - 8.5)
+        self.p2 = bd.Vector(board.d.X/2 - 4.55, (board.d.Y+clearance_xy)/2 - self.d.Y/2 - 8.5 - self.d.Y - 6.7)
+        self.p3 = bd.Vector( -(board.d.X+clearance_xy)/2 + self.d.X/2 +0.5, (board.d.Y+clearance_xy)/2 - self.d.Y/2 - 10.2)
         return None
 
     def sketch(self):  
@@ -164,8 +170,17 @@ class mkdsn():
 
     def solid_hole_upwards(self):
         smkdsn = self.sketch()
-        solid_hole = bd.extrude(smkdsn, amount=20, both=True) 
+        solid_hole = bd.extrude(smkdsn, amount=2, both=True) 
         return solid_hole
+
+    def solid_enclosed_volume(self, box):
+        xy_hole =  bd.Pos(box.board.d.X/2 - box.dim_wall.X  - 7.5/2, self.p1.Y, box.dim_bottom.Z + box.clearance.Z + box.board.solder + box.board.d.Z + self.evd.Z/2)  * \
+                   bd.Box(self.evd.X, self.evd.Y, self.evd.Z)
+        xy_hole += bd.Pos(box.board.d.X/2 - box.dim_wall.X  - 7.5/2, self.p2.Y, box.dim_bottom.Z + box.clearance.Z + box.board.solder + box.board.d.Z + self.evd.Z/2)  * \
+                   bd.Box(self.evd.X, self.evd.Y, self.evd.Z)
+        xy_hole += bd.Pos(-box.board.d.X/2 + box.dim_wall.X  + 7.5/2 + 0.25, self.p3.Y, box.dim_bottom.Z + box.clearance.Z + box.board.solder + box.board.d.Z + self.evd.Z/2)  * \
+                   bd.Box(self.evd.X, self.evd.Y, self.evd.Z)
+        return xy_hole
 
 class zif():
     # class properties
@@ -195,6 +210,7 @@ class zif():
         
 class plug():
     d = bd.Vector(9, 15.3, 11)
+    evd = bd.Vector(12, 13.8, 12)
     
     def __init__(self, pos):
         self.p = pos
@@ -203,6 +219,18 @@ class plug():
     def solid_hole_outwards(self):
         plug_hole = bd.Pos(self.p) * bd.Box(self.d.X, 10, self.d.Z, align=[bd.Align.CENTER, bd.Align.CENTER, bd.Align.MIN])        
         return plug_hole
+
+    def solid_hole_outwards(self):
+        plug_hole = bd.Pos(self.p) * bd.Box(self.d.X, 10, self.d.Z, align=[bd.Align.CENTER, bd.Align.CENTER, bd.Align.MIN])        
+        return plug_hole
+    
+    def solid_enclosed_volume(self, box):
+    #    solid =  bd.Pos(8.15, -box.board.d.Y/2 + box.dim_wall.Y + box.clearance.Y + 0*self.evd.Y/2, box.dim_bottom.Z + box.clearance.Z + box.board.solder + box.board.d.Z + self.evd.Z/2)  * \
+    #             bd.Box(self.evd.X, self.evd.Y, self.evd.Z)  
+       solid =  bd.Pos(8.15, -box.dim_top.Y/2 + box.fillet_dim_top.Y + box.clearance.Y + box.edge_top.Y + self.evd.Y/2 + 1, box.dim_bottom.Z + box.clearance.Z + box.board.solder + box.board.d.Z + self.evd.Z/2)  * \
+                bd.Box(self.evd.X, self.evd.Y, self.evd.Z)  
+                
+       return solid
 
 class battery():
     d = bd.Vector(26, 52, 17)
@@ -971,6 +999,9 @@ class gm328A_case(parametric_box):
         lcd_position = bd.Vector(-self.board.d.X/2 + 6.9,  -self.board.d.Y/2 + 8.95, self.height - self.dim_top.Z)
         solid -= lcd(pos=lcd_position, clearance=self.clearance).solid_hole_upwards()
         
+        # remove LCD screws
+        solid -= lcd(pos=lcd_position, clearance=self.clearance).solid_screws(self)
+        
         # remove encoder
         enc_position = bd.Vector(self.board.d.X/2 - 2.5, -self.board.d.Y/2 + 3.50, self.height - self.dim_top.Z)
         solid -= encoder(pos=enc_position).solid_hole_upwards()
@@ -988,6 +1019,13 @@ class gm328A_case(parametric_box):
         # remove plug
         plug_position = bd.Vector(8.15, -self.board.d.Y/2, self.dim_bottom.Z + self.board.solder + self.board.d.Z)
         solid -= plug(plug_position).solid_hole_outwards()   
+        
+        # remove space for mkdns plugs
+        solid -= mkdsn(self.board, self.clearance.X).solid_enclosed_volume(self)
+
+        # remove space for power plugs
+        plug_position = bd.Vector(8.15, -self.board.d.Y/2, self.dim_bottom.Z + self.board.solder + self.board.d.Z)
+        solid -= plug(plug_position).solid_enclosed_volume(self)
         
         return solid
 
