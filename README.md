@@ -31,18 +31,27 @@ For more information, refer to the [Build123d documentation](https://build123d.r
 ### Design Details
 Two new classes were derived from the base parametric box class (parametric_box class to model:
 1. The main case (gm328A_case class).
-2. A detachable battery case (gm328A_battery class).
+2. A detachable battery case (gm328A_battery class), which can be connected horizontally and vertically to the main case (see pictures of final product) 
 
 ### Scripts
-- **Python in VSCode** with the **OCP extension**:
-- **FreeCAD** with the **CadQuery add-on**:
-- **Blender** with the **BlendQuery add-on**:
+- **Python in VSCode** with the **OCP extension**: [python script](https://github.com/pbrugugnoli/parametric_case/blob/main/scripts/GM328A%20Case%20-%20VSCode%20%2B%20OCP.py)
+- **FreeCAD** with the **CadQuery add-on**: [python script](https://github.com/pbrugugnoli/parametric_case/blob/main/scripts/GM328A%20Case%20-%20Freecad%20%2B%20Cadquery%20Add-on.py)
+- **Blender** with the **BlendQuery add-on**: [python script](https://github.com/pbrugugnoli/parametric_case/blob/main/scripts/Blender%20%2B%20Blendquery.py)
 
 ### Outputs
-- **Rendered Images**:
-  - Generated using the OCP extension, FreeCAD, and Blender.
+- **Rendered Images in Blender**:
+  - Battery connected horizontally
+  <img src="https://github.com/pbrugugnoli/parametric_case/blob/main/rendered%20images/GM328A%20%2B%20Battery%20cases%20-%20storage%20assembly.jpg" width="600" />
+  
+  - Battery connected vertically
+  <img src="https://github.com/pbrugugnoli/parametric_case/blob/main/rendered%20images/GM328A%20%2B%20Battery%20cases%20-%20working%20assembly.jpg" width="600" />
+  
 - **Final Product Images**:
-  - Photographs of the 3D printed case.
+  - Battery connected horizontally
+  <img src="https://github.com/pbrugugnoli/parametric_case/blob/main/Final%20Product/Case%20GM328A_01.jpg" width="600" />
+  
+  - Battery connected vertically
+  <img src="https://github.com/pbrugugnoli/parametric_case/blob/main/Final%20Product/Case%20GM328A_02.jpg" width="600" />
 
 ## Conclusions
 - It is feasible to create general parametric object classes that can be further specialized in derived classes and methods.
@@ -52,4 +61,5 @@ Two new classes were derived from the base parametric box class (parametric_box 
 
 ---
 Feel free to explore the project, experiment with the scripts, and adapt them for your own 3D modeling and printing needs!
+Note that this is just a documentation repository and I am not intend to evolve or support these scripts
 
